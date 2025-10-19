@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.metrics import log_loss
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+import pandas as pd
 
 from plot_utils import (plot_scatterplot_and_line, plot_scatterplot_and_polynomial, 
                         plot_logistic_regression, plot_datapoints, plot_3d_surface, plot_2d_contour,
@@ -30,17 +31,26 @@ def task_1(use_linalg_formulation=False):
     # `smartwatch_data[:, column_to_id['hours_sleep']]`
     smartwatch_data = np.load('data/smartwatch_data.npy') ##  Load the smartwatch data from a .npy file 
     
-    pairplot(smartwatch_data, list(column_to_id.keys())) ##  Plot pairplot to visualize relationships between features
+    #pairplot(smartwatch_data, list(column_to_id.keys())) ##  Plot pairplot to visualize relationships between features
     chosen_pairs_linearly_dependent = [
-        ['avg_pulse', 'max_pulse'],
-        ['duration', 'calories'],
-        ['exercise_intensity', 'calories']
+        ['duration', 'fitness_level'],
+        ['fitness_level', 'calories'],
+        ['duration', 'calories']
     ]
     chosen_pairs_linearly_independent = [
-        ['hours_sleep', 'duration'],
-        ['fitness_level', 'hours_work'],
-        ['exercise_intensity', 'hours_work']
+        ['hours_sleep', 'avg_pulse'],
+        ['fitness_level', 'max_pulse'],
+        ['max_pulse', 'duration']
     ]
+
+    """all_pairs = []
+    for column_1 in column_to_id:
+        for column_2 in column_to_id:
+            if column_1 != column_2 and not [column_1, column_2] in all_pairs and not [column_2, column_1] in all_pairs:
+                pair = [column_1, column_2]
+                all_pairs.append(pair)"""
+            
+    
 
     # TODO: Implement Task 1.1.1: Find 3 pairs of features that have a linear relationship.
     # For each pair, fit a univariate linear regression model: If ``use_linalg_formulation`` is False,
@@ -48,7 +58,7 @@ def task_1(use_linalg_formulation=False):
     # For each pair, also calculate and report the Pearson correlation coefficient, the theta vector you found, 
     # the MSE, and plot the data points together with the linear function.
     # Repeat the process for 3 pairs of features that do not have a meaningful linear relationship.
-    
+    #fulldata = []
     if not use_linalg_formulation:
         for pair in chosen_pairs_linearly_dependent+chosen_pairs_linearly_independent:
             data = smartwatch_data.copy()
@@ -68,9 +78,18 @@ def task_1(use_linalg_formulation=False):
                 title=plot_title,
                 figname=plot_filename
             )
-            print(f"Chosen pair: {pair[0]} vs {pair[1]}")
-            print(f"MSE: {round(mse_loss,2)}, Theta: b:{round(theta[0],2)}, w:{round(theta[1],2)}; Pearson: {round(pearson, 2)}")
-            print("--------")
+            data = {
+                'x': pair[0],
+                'y': pair[1],
+                'mse': round(mse_loss, 2),
+                'w': round(theta[1], 2),
+                'b': round(theta[0], 2),
+                'pearson': round(pearson, 2)
+            }
+            #fulldata.append(data)
+            ##print(f"Chosen pair: {pair[0]} vs {pair[1]}")
+            #print(f"MSE: {round(mse_loss,2)}, Theta: b:{round(theta[0],2)}, w:{round(theta[1],2)}; Pearson: {round(pearson, 2)}")
+            #print("--------")
     elif use_linalg_formulation:
         chosen_x = ['duration', 'exercise_intensity', 'avg_pulse']
         chosen_y = 'calories'
@@ -87,7 +106,8 @@ def task_1(use_linalg_formulation=False):
     # Select two additional features, compute the design matrix, and fit the multiple linear regression model.
     # Report the MSE and the theta vector.
     pass
-
+    """stats = pd.DataFrame(fulldata)
+    stats.to_excel("stats.xlsx")"""
 
     # TODO: Implement Task 1.3.1: Polynomial regression
     # For the feature-target pair of choice, compute the polynomial design matrix with an appropriate degree K, 
@@ -197,8 +217,8 @@ def task_3(initial_plot=True):
 def main():
     np.random.seed(46)
 
+    #task_1(use_linalg_formulation=False)
     task_1(use_linalg_formulation=False)
-    task_1(use_linalg_formulation=True)
     #task_2()
     #task_3(initial_plot=True)
 

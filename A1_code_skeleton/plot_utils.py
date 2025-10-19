@@ -94,7 +94,6 @@ def plot_scatterplot_and_line(x: np.ndarray,
     
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    print(round(b, 2), round(w, 2))
     plt.title(f"{title}\nR2-Score: {round(r2, 3)}; w: {round(w, 2)}, b: {round(b, 2)}")
     plt.plot(x_line, y_line, color='orange')
 
