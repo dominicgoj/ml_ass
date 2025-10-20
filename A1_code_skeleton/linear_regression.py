@@ -99,5 +99,9 @@ def compute_polynomial_design_matrix(x: np.ndarray, K: int) -> np.ndarray:
     """
 
     # TODO: Implement the polynomial design matrix (Task 1.3.2)
-    polynomial_design_matrix = None
+    N = x.shape
+    polynomial_design_matrix = np.empty((N[0], K+1), dtype=float)
+    polynomial_design_matrix[:, 0] = 1
+    for i in range(1, K+1):
+        polynomial_design_matrix[:, i] = (x)**i
     return polynomial_design_matrix

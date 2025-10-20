@@ -87,11 +87,14 @@ def task_1(use_linalg_formulation=False):
                 'pearson': round(pearson, 2)
             }
             #fulldata.append(data)
-            ##print(f"Chosen pair: {pair[0]} vs {pair[1]}")
-            #print(f"MSE: {round(mse_loss,2)}, Theta: b:{round(theta[0],2)}, w:{round(theta[1],2)}; Pearson: {round(pearson, 2)}")
-            #print("--------")
+            print(f"Chosen pair: {pair[0]} vs {pair[1]}")
+            print(f"MSE: {round(mse_loss,2)}, Theta: b:{round(theta[0],2)}, w:{round(theta[1],2)}; Pearson: {round(pearson, 2)}")
+            print("--------")
+    # TODO: Implement Task 1.2.2: Multiple linear regression
+    # Select two additional features, compute the design matrix, and fit the multiple linear regression model.
+    # Report the MSE and the theta vector.
     elif use_linalg_formulation:
-        chosen_x = ['duration', 'exercise_intensity', 'avg_pulse']
+        chosen_x = ['duration', 'fitness_level', 'exercise_intensity']
         chosen_y = 'calories'
         cols = [column_to_id[x] for x in chosen_x]
         data = smartwatch_data[:, cols]
@@ -102,19 +105,35 @@ def task_1(use_linalg_formulation=False):
         print(f"{chosen_x} vs {chosen_y}")
         print(f"MSE: {round(mse_loss, 2)}, Theta: {theta_star}")
     
-    # TODO: Implement Task 1.2.2: Multiple linear regression
-    # Select two additional features, compute the design matrix, and fit the multiple linear regression model.
-    # Report the MSE and the theta vector.
-    pass
-    """stats = pd.DataFrame(fulldata)
-    stats.to_excel("stats.xlsx")"""
 
     # TODO: Implement Task 1.3.1: Polynomial regression
     # For the feature-target pair of choice, compute the polynomial design matrix with an appropriate degree K, 
     # fit the model, and plot the data points together with the polynomial function.
     # Report the MSE and the theta vector.
-    pass
-
+    chosen_x = 'duration'
+    chosen_y = 'fitness_level'
+    col_id_x = column_to_id[chosen_x]
+    col_id_y = column_to_id[chosen_y]
+    data = smartwatch_data[:, col_id_x]
+    y = smartwatch_data[:, col_id_y]
+    design_matrix_x = compute_polynomial_design_matrix(x=data, K=2)
+    
+    theta_star = fit_multiple_lin_model(X=design_matrix_x, y=y)
+    mse_loss = multiple_loss(X=design_matrix_x, y=y, theta=theta_star)
+    x_label = chosen_x.replace("_", " ").capitalize()
+    y_label = chosen_y.replace("_", " ").capitalize()
+    plot_title = f"{x_label} vs. {y_label}"
+    figname = f"poly_{chosen_x}_vs_{chosen_y}"
+    plot_scatterplot_and_polynomial(
+        x=data,
+        y=y,
+        theta=theta_star,
+        xlabel=x_label,
+        ylabel=y_label,
+        title=plot_title,
+        figname=figname
+    )
+    print(f"MSE: {mse_loss}; Theta: {theta_star}")
 
 
 def task_2():
@@ -217,8 +236,8 @@ def task_3(initial_plot=True):
 def main():
     np.random.seed(46)
 
-    #task_1(use_linalg_formulation=False)
     task_1(use_linalg_formulation=False)
+    #task_1(use_linalg_formulation=True)
     #task_2()
     #task_3(initial_plot=True)
 

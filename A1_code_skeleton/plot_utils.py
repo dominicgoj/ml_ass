@@ -52,15 +52,19 @@ def plot_scatterplot_and_polynomial(x: np.ndarray,
     # Theta will be an array with two coefficients, representing slope and intercept.
     # In which format is it stored in the theta array? Take care of that when plotting the line.
     plt.scatter(x, y)
+
     xx = np.linspace(np.min(x), np.max(x), 100)
+
     X = compute_polynomial_design_matrix(xx, K=len(theta)-1)
     yy = X @ theta
+    
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.title(title)
+    plt.title(f"{title}")
     plt.plot(xx, yy, color='orange')
 
     plt.savefig(f'plots/{figname}.pdf')
+    plt.savefig(f'plots/{figname}.png')
     plt.show()
 
 
