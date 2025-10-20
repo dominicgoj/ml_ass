@@ -43,12 +43,12 @@ def task_1(use_linalg_formulation=False):
         ['max_pulse', 'duration']
     ]
 
-    """all_pairs = []
+    all_pairs = []
     for column_1 in column_to_id:
         for column_2 in column_to_id:
             if column_1 != column_2 and not [column_1, column_2] in all_pairs and not [column_2, column_1] in all_pairs:
                 pair = [column_1, column_2]
-                all_pairs.append(pair)"""
+                all_pairs.append(pair)
             
     
 
@@ -67,8 +67,10 @@ def task_1(use_linalg_formulation=False):
             theta = fit_univariate_lin_model(x=X, y=y)
             mse_loss = univariate_loss(x=X, y=y, theta=theta)
             pearson = calculate_pearson_correlation(x=X, y=y)
-            plot_title = f"{pair[0]} vs. {pair[1]}"
-            plot_filename = f"{pair[0]}_vs_{pair[1]}"
+            xlabel = pair[0].replace("_", " ").capitalize()
+            ylabel = pair[1].replace("_", " ").capitalize()
+            plot_title = f"{xlabel} vs. {ylabel}"
+            plot_filename = f"uni_{pair[0]}_vs_{pair[1]}"
             plot_scatterplot_and_line(
                 x=X,
                 y=y,
@@ -110,30 +112,38 @@ def task_1(use_linalg_formulation=False):
     # For the feature-target pair of choice, compute the polynomial design matrix with an appropriate degree K, 
     # fit the model, and plot the data points together with the polynomial function.
     # Report the MSE and the theta vector.
-    chosen_x = 'duration'
-    chosen_y = 'fitness_level'
-    col_id_x = column_to_id[chosen_x]
-    col_id_y = column_to_id[chosen_y]
-    data = smartwatch_data[:, col_id_x]
-    y = smartwatch_data[:, col_id_y]
-    design_matrix_x = compute_polynomial_design_matrix(x=data, K=2)
-    
-    theta_star = fit_multiple_lin_model(X=design_matrix_x, y=y)
-    mse_loss = multiple_loss(X=design_matrix_x, y=y, theta=theta_star)
-    x_label = chosen_x.replace("_", " ").capitalize()
-    y_label = chosen_y.replace("_", " ").capitalize()
-    plot_title = f"{x_label} vs. {y_label}"
-    figname = f"poly_{chosen_x}_vs_{chosen_y}"
-    plot_scatterplot_and_polynomial(
-        x=data,
-        y=y,
-        theta=theta_star,
-        xlabel=x_label,
-        ylabel=y_label,
-        title=plot_title,
-        figname=figname
-    )
-    print(f"MSE: {mse_loss}; Theta: {theta_star}")
+    rawdata = []
+    for pair in all_pairs:
+        chosen_x = pair[0]
+        chosen_y = pair[1]
+        col_id_x = column_to_id[chosen_x]
+        col_id_y = column_to_id[chosen_y]
+        data = smartwatch_data[:, col_id_x]
+        y = smartwatch_data[:, col_id_y]
+        for i in range(2, 8):
+            K = i
+            design_matrix_x = compute_polynomial_design_matrix(x=data, K=K)
+            
+            theta_star = fit_multiple_lin_model(X=design_matrix_x, y=y)
+            mse_loss = multiple_loss(X=design_matrix_x, y=y, theta=theta_star)
+            x_label = chosen_x.replace("_", " ").capitalize()
+            y_label = chosen_y.replace("_", " ").capitalize()
+            plot_title = f"{x_label} vs. {y_label} / K={K}"
+            figname = f"poly_{K}_{chosen_x}_vs_{chosen_y}"
+            df = {"xlabel": x_label, "ylabel": y_label, "theta": theta_star, "mse": mse_loss, "K": K}
+            rawdata.append(df)
+            plot_scatterplot_and_polynomial(
+                x=data,
+                y=y,
+                theta=theta_star,
+                xlabel=x_label,
+                ylabel=y_label,
+                title=plot_title,
+                figname=figname
+            )
+            #print(f"MSE: {mse_loss}; Theta: {theta_star}")
+    df = pd.DataFrame(rawdata)
+    df.to_excel("polynomial_regression.xlsx")
 
 
 def task_2():

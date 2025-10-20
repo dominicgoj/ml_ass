@@ -65,7 +65,8 @@ def plot_scatterplot_and_polynomial(x: np.ndarray,
 
     plt.savefig(f'plots/{figname}.pdf')
     plt.savefig(f'plots/{figname}.png')
-    plt.show()
+    #plt.show()
+    plt.close()
 
 
 def plot_scatterplot_and_line(x: np.ndarray, 
