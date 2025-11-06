@@ -143,7 +143,8 @@ def plot_logistic_regression(logreg_model, create_design_matrix, X,
 
     # make sure a "plots" directory exists!
     plt.savefig(f'plots/{figname}.pdf')
-    plt.show()
+    plt.savefig(f'plots/{figname}.png')
+    #plt.show()
 
 
 def plot_datapoints(X: np.ndarray, y: np.ndarray, title: str) -> None:
@@ -245,6 +246,7 @@ def plot_2d_contour(f: Callable[[np.ndarray, np.ndarray], np.ndarray],
     plt.tight_layout()
 
     plt.savefig(f'plots/{figname}.pdf')
+    plt.savefig(f'plots/{figname}.png', dpi=300)
     plt.show()
 
 
@@ -262,4 +264,5 @@ def plot_function_over_iterations(f_list: np.ndarray,
     plt.title('Function value over iterations')
     plt.tight_layout()
     plt.savefig(f'plots/{figname}.pdf')
+    plt.savefig(f'plots/{figname}.png', dpi=300)
     plt.show()

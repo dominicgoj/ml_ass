@@ -8,7 +8,8 @@ def create_design_matrix_dataset_1(X_data: np.ndarray) -> np.ndarray:
     :return: Design matrix X
     """
     # TODO: Create the design matrix X for dataset 1
-    additional_features = ...
+   
+    additional_features = np.column_stack(((X_data[:, 0] >= 10).astype(float), (X_data[:, 1] <= 20).astype(float)))
 
     X = np.concatenate((X_data, additional_features), axis=1)
 
@@ -25,7 +26,11 @@ def create_design_matrix_dataset_2(X_data: np.ndarray) -> np.ndarray:
     :return: Design matrix X
     """
     # TODO: Create the design matrix X for dataset 2
-    additional_features = ...
+    additional_features = np.column_stack(
+        ((X_data[:,0]*X_data[:,0]),
+        (X_data[:,0]*X_data[:,1]),
+        (X_data[:,1]*X_data[:,0]))
+    )
 
     X = np.concatenate((X_data, additional_features), axis=1)
 
@@ -42,8 +47,11 @@ def create_design_matrix_dataset_3(X_data: np.ndarray) -> np.ndarray:
     :return: Design matrix X
     """
     # TODO: Create the design matrix X for dataset 3
-    additional_features = ...
-    
+    additional_features = np.column_stack([
+        (X_data[:, 0]**(5-i) * X_data[:, 1]**i)
+        for i in range(8)
+    ])
+
     X = np.concatenate((X_data, additional_features), axis=1)
 
     assert X.shape[0] == X_data.shape[0], """The number of rows in the design matrix X should be the same as
@@ -58,4 +66,4 @@ def logistic_regression_params_sklearn():
     Read the docs at https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
     """
     # TODO: Try different `penalty` parameters for the LogisticRegression model
-    return {'penalty': 'l2'}
+    return {'penalty': 'l2', 'solver': 'lbfgs'}

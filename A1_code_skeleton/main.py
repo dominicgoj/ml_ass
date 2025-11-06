@@ -43,14 +43,14 @@ def task_1(use_linalg_formulation=False):
         ['max_pulse', 'duration']
     ]
 
+    # Use to generate all possible feature pairs for finding relationships
     all_pairs = []
     for column_1 in column_to_id:
         for column_2 in column_to_id:
+            print(column_1, column_2)
             if column_1 != column_2 and not [column_1, column_2] in all_pairs and not [column_2, column_1] in all_pairs:
                 pair = [column_1, column_2]
                 all_pairs.append(pair)
-            
-    
 
     # TODO: Implement Task 1.1.1: Find 3 pairs of features that have a linear relationship.
     # For each pair, fit a univariate linear regression model: If ``use_linalg_formulation`` is False,
@@ -58,7 +58,7 @@ def task_1(use_linalg_formulation=False):
     # For each pair, also calculate and report the Pearson correlation coefficient, the theta vector you found, 
     # the MSE, and plot the data points together with the linear function.
     # Repeat the process for 3 pairs of features that do not have a meaningful linear relationship.
-    #fulldata = []
+    fulldata = []
     if not use_linalg_formulation:
         for pair in chosen_pairs_linearly_dependent+chosen_pairs_linearly_independent:
             data = smartwatch_data.copy()
@@ -88,10 +88,13 @@ def task_1(use_linalg_formulation=False):
                 'b': round(theta[0], 2),
                 'pearson': round(pearson, 2)
             }
-            #fulldata.append(data)
+            fulldata.append(data)
             print(f"Chosen pair: {pair[0]} vs {pair[1]}")
             print(f"MSE: {round(mse_loss,2)}, Theta: b:{round(theta[0],2)}, w:{round(theta[1],2)}; Pearson: {round(pearson, 2)}")
             print("--------")
+    
+        df = pd.DataFrame(fulldata)
+        df.to_excel("univariate_regression.xlsx")
     # TODO: Implement Task 1.2.2: Multiple linear regression
     # Select two additional features, compute the design matrix, and fit the multiple linear regression model.
     # Report the MSE and the theta vector.
@@ -112,7 +115,10 @@ def task_1(use_linalg_formulation=False):
     # For the feature-target pair of choice, compute the polynomial design matrix with an appropriate degree K, 
     # fit the model, and plot the data points together with the polynomial function.
     # Report the MSE and the theta vector.
+
+    # Use to generate all possible feature pairs for finding polynomial relationships
     rawdata = []
+    print(f"All pairs {all_pairs}")
     for pair in all_pairs:
         chosen_x = pair[0]
         chosen_y = pair[1]
@@ -120,7 +126,7 @@ def task_1(use_linalg_formulation=False):
         col_id_y = column_to_id[chosen_y]
         data = smartwatch_data[:, col_id_x]
         y = smartwatch_data[:, col_id_y]
-        for i in range(2, 8):
+        for i in range(0, 8):
             K = i
             design_matrix_x = compute_polynomial_design_matrix(x=data, K=K)
             
@@ -141,7 +147,7 @@ def task_1(use_linalg_formulation=False):
                 title=plot_title,
                 figname=figname
             )
-            #print(f"MSE: {mse_loss}; Theta: {theta_star}")
+            print(f"MSE: {mse_loss}; Theta: {theta_star}")
     df = pd.DataFrame(rawdata)
     df.to_excel("polynomial_regression.xlsx")
 
@@ -172,44 +178,53 @@ def task_2():
         X = create_design_matrix(X_data)
 
         # Plot the datapoints (just for visual inspection)
-        plot_datapoints(X, y, f'Targets - Task {task}')
+        #plot_datapoints(X, y, f'Targets - Task {task}')
 
         # TODO: Split the dataset using the `train_test_split` function.
         # The parameter `random_state` should be set to 0.
-        X_train, X_test, y_train, y_test = None, None, None, None
-
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
         print(f'Shapes of: X_train {X_train.shape}, X_test {X_test.shape}, y_train {y_train.shape}, y_test {y_test.shape}')
 
         # Train the classifier
         custom_params = logistic_regression_params_sklearn()
+        
         clf = LogisticRegression(**custom_params)
         # TODO: Fit the model to the data using the `fit` method of the classifier `clf`
-
-        acc_train, acc_test = None, None # TODO: Use the `score` method of the classifier `clf` to calculate accuracy
+        clf.fit(X_train, y_train)
+        acc_train, acc_test = clf.score(X_train, y_train), clf.score(X_test, y_test) # TODO: Use the `score` method of the classifier `clf` to calculate accuracy
 
         print(f'Train accuracy: {acc_train * 100:.2f}%. Test accuracy: {100 * acc_test:.2f}%.')
         
-        yhat_train = None # TODO: Use the `predict_proba` method of the classifier `clf` to
-                          #  calculate the predicted probabilities on the training set
-        yhat_test = None # TODO: Use the `predict_proba` method of the classifier `clf` to
-                         #  calculate the predicted probabilities on the test set
+        yhat_train = clf.predict_proba(X_train) # TODO: Use the `predict_proba` method of the classifier `clf` to
+                        #  calculate the predicted probabilities on the training set
+        yhat_test = clf.predict_proba(X_test) # TODO: Use the `predict_proba` method of the classifier `clf` to
+                        #  calculate the predicted probabilities on the test set
+        yhat_train_binary = np.column_stack((yhat_train[:, 1] > 0.5).astype(float)).reshape(-1, 1)
+        yhat_test_binary = np.column_stack((yhat_test[:, 1] > 0.5).astype(float)).reshape(-1, 1)
 
+        y_train = y_train.reshape(-1, 1)
+        y_test = y_test.reshape(-1, 1)
+        
         # TODO: Use the `log_loss` function to calculate the cross-entropy loss
         #  (once on the training set, once on the test set).
         #  You need to pass (1) the true binary labels and (2) the probability of the *positive* class to `log_loss`.
         #  Since the output of `predict_proba` is of shape (n_samples, n_classes), you need to select the probabilities
         #  of the positive class by indexing the second column (index 1).
-        loss_train, loss_test = None, None
+        
+        loss_train, loss_test = log_loss(y_true=y_train, y_pred=yhat_train_binary), log_loss(y_true=y_test, y_pred=yhat_test_binary)
         print(f'Train loss: {loss_train}. Test loss: {loss_test}.')
 
         plot_logistic_regression(clf, create_design_matrix, X_train, f'(Dataset {task}) Train set predictions',
-                                 figname=f'logreg_train{task}')
+                                figname=f'logreg_train{task}')
         plot_logistic_regression(clf, create_design_matrix, X_test,  f'(Dataset {task}) Test set predictions',
-                                 figname=f'logreg_test{task}')
+                                figname=f'logreg_test{task}')
 
         # TODO: Print theta vector (and also the bias term). Hint: Check the attributes of the classifier
-        classifier_weights, classifier_bias = None, None
+        
+        classifier_weights, classifier_bias = clf.coef_, clf.intercept_
+  
         print(f'Parameters: {classifier_weights}, {classifier_bias}')
+
 
 
 def task_3(initial_plot=True):
@@ -218,8 +233,8 @@ def task_3(initial_plot=True):
     np.random.seed(46)
 
     # TODO: Choose a random starting point using samples from a standard normal distribution
-    x0 = None
-    y0 = None
+    x0 = np.random.randn()
+    y0 = np.random.randn()
     print(f'Starting point: {x0:.4f}, {y0:.4f}')
 
     if initial_plot:
@@ -229,8 +244,18 @@ def task_3(initial_plot=True):
 
     # TODO: Call the function `gradient_descent` with a chosen configuration of hyperparameters,
     #  i.e., learning_rate, lr_decay, and num_iters. Try out lr_decay=1 as well as values for lr_decay that are < 1.
-    x_list, y_list, f_list = None, None, None
 
+    learning_rate = 0.01
+    learning_rate_decay = 1
+    number_of_iterations = 20
+    x_list, y_list, f_list = gradient_descent(f=rastrigin,
+                                            df=gradient_rastrigin,
+                                            x0=x0,
+                                            y0=y0,
+                                            learning_rate=learning_rate,
+                                            lr_decay=learning_rate_decay,
+                                            num_iters=number_of_iterations)
+                
     # Print the point that is found after `num_iters` iterations
     print(f'Solution found: f({x_list[-1]:.4f}, {y_list[-1]:.4f})= {f_list[-1]:.4f}' )
     print(f'Global optimum: f(0, 0)= {rastrigin(0, 0):.4f}')
@@ -240,16 +265,16 @@ def task_3(initial_plot=True):
                     x_list=x_list, y_list=y_list)
 
     # TODO: Create a plot f(x_t, y_t) over iterations t by calling `plot_function_over_iterations` with `f_list`
-    pass
+    plot_function_over_iterations(f_list=f_list)
 
 
 def main():
     np.random.seed(46)
 
-    task_1(use_linalg_formulation=False)
-    task_1(use_linalg_formulation=True)
+    #task_1(use_linalg_formulation=False)
+    #task_1(use_linalg_formulation=True)
     #task_2()
-    #task_3(initial_plot=True)
+    task_3(initial_plot=True)
 
 
 if __name__ == '__main__':

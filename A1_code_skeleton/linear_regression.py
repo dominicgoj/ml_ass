@@ -73,7 +73,7 @@ def multiple_loss(X: np.ndarray, y: np.ndarray, theta: np.ndarray) -> float:
     """
     # TODO: Implement the multiple regression loss \mathcal{L}_M(theta) (as specified in Equation 5)
     y_pred = X @ theta
-    mean_squared_error = np.sqrt(np.mean((y_pred-y)**2))
+    mean_squared_error = np.mean((y_pred-y)**2)
     return mean_squared_error
 
 
