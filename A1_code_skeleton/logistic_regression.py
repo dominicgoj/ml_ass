@@ -12,7 +12,7 @@ def create_design_matrix_dataset_1(X_data: np.ndarray) -> np.ndarray:
     additional_features = np.column_stack(
         ((X_data[:,0]*X_data[:,0]),
         (X_data[:,0]*X_data[:,1]),
-        (X_data[:,1]*X_data[:,0]))
+        (X_data[:,1]*X_data[:,1]))
     )
     
     X = np.concatenate((X_data, additional_features), axis=1)
@@ -33,7 +33,7 @@ def create_design_matrix_dataset_2(X_data: np.ndarray) -> np.ndarray:
     additional_features = np.column_stack(
         ((X_data[:,0]*X_data[:,0]),
         (X_data[:,0]*X_data[:,1]),
-        (X_data[:,1]*X_data[:,0]))
+        (X_data[:,1]*X_data[:,1]))
     )
 
     X = np.concatenate((X_data, additional_features), axis=1)
