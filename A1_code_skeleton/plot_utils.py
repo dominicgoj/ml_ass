@@ -144,7 +144,7 @@ def plot_logistic_regression(logreg_model, create_design_matrix, X,
     # make sure a "plots" directory exists!
     plt.savefig(f'plots/{figname}.pdf')
     plt.savefig(f'plots/{figname}.png')
-    #plt.show()
+    plt.show()
 
 
 def plot_datapoints(X: np.ndarray, y: np.ndarray, title: str) -> None:
