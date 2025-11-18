@@ -53,10 +53,11 @@ def create_design_matrix_dataset_3(X_data: np.ndarray) -> np.ndarray:
     # TODO: Create the design matrix X for dataset 3
     additional_features = np.column_stack([
         (X_data[:, 0]**(5-i) * X_data[:, 1]**i)
-        for i in range(8)
+        for i in range(6)
     ])
 
     X = np.concatenate((X_data, additional_features), axis=1)
+
 
     assert X.shape[0] == X_data.shape[0], """The number of rows in the design matrix X should be the same as
                                              the number of data points."""
