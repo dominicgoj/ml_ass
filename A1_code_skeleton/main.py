@@ -2,7 +2,6 @@ import numpy as np
 from sklearn.metrics import log_loss
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-import pandas as pd
 
 from plot_utils import (plot_scatterplot_and_line, plot_scatterplot_and_polynomial, 
                         plot_logistic_regression, plot_datapoints, plot_3d_surface, plot_2d_contour,
@@ -31,7 +30,10 @@ def task_1(use_linalg_formulation=False):
     # `smartwatch_data[:, column_to_id['hours_sleep']]`
     smartwatch_data = np.load('data/smartwatch_data.npy') ##  Load the smartwatch data from a .npy file 
     
-    #pairplot(smartwatch_data, list(column_to_id.keys())) ##  Plot pairplot to visualize relationships between features
+    pairplot(data=smartwatch_data,
+             feature_names=list(column_to_id.keys())) ##  Plot pairplot to visualize relationships between features
+    
+    
     chosen_pairs_linearly_dependent = [
         ['duration', 'fitness_level'],
         ['fitness_level', 'calories'],
@@ -47,7 +49,6 @@ def task_1(use_linalg_formulation=False):
     all_pairs = []
     for column_1 in column_to_id:
         for column_2 in column_to_id:
-            print(column_1, column_2)
             if column_1 != column_2 and not [column_1, column_2] in all_pairs and not [column_2, column_1] in all_pairs:
                 pair = [column_1, column_2]
                 all_pairs.append(pair)
@@ -58,10 +59,12 @@ def task_1(use_linalg_formulation=False):
     # For each pair, also calculate and report the Pearson correlation coefficient, the theta vector you found, 
     # the MSE, and plot the data points together with the linear function.
     # Repeat the process for 3 pairs of features that do not have a meaningful linear relationship.
-    fulldata = []
+
     if not use_linalg_formulation:
         for pair in chosen_pairs_linearly_dependent+chosen_pairs_linearly_independent:
+          
             data = smartwatch_data.copy()
+            
             X = data[:, column_to_id[pair[0]]]
             y = data[:, column_to_id[pair[1]]]
             theta = fit_univariate_lin_model(x=X, y=y)
@@ -80,21 +83,11 @@ def task_1(use_linalg_formulation=False):
                 title=plot_title,
                 figname=plot_filename
             )
-            data = {
-                'x': pair[0],
-                'y': pair[1],
-                'mse': round(mse_loss, 2),
-                'w': round(theta[1], 2),
-                'b': round(theta[0], 2),
-                'pearson': round(pearson, 2)
-            }
-            fulldata.append(data)
+
             print(f"Chosen pair: {pair[0]} vs {pair[1]}")
             print(f"MSE: {round(mse_loss,2)}, Theta: b:{round(theta[0],2)}, w:{round(theta[1],2)}; Pearson: {round(pearson, 2)}")
             print("--------")
-    
-        df = pd.DataFrame(fulldata)
-        df.to_excel("univariate_regression.xlsx")
+
     # TODO: Implement Task 1.2.2: Multiple linear regression
     # Select two additional features, compute the design matrix, and fit the multiple linear regression model.
     # Report the MSE and the theta vector.
@@ -117,45 +110,41 @@ def task_1(use_linalg_formulation=False):
     # Report the MSE and the theta vector.
 
     # Use to generate all possible feature pairs for finding polynomial relationships
-    rawdata = []
-    print(f"All pairs {all_pairs}")
-    for pair in all_pairs:
-        chosen_x = pair[0]
-        chosen_y = pair[1]
-        col_id_x = column_to_id[chosen_x]
-        col_id_y = column_to_id[chosen_y]
-        data = smartwatch_data[:, col_id_x]
-        y = smartwatch_data[:, col_id_y]
-        for i in range(0, 8):
-            K = i
-            design_matrix_x = compute_polynomial_design_matrix(x=data, K=K)
-            
-            theta_star = fit_multiple_lin_model(X=design_matrix_x, y=y)
-            mse_loss = multiple_loss(X=design_matrix_x, y=y, theta=theta_star)
-            x_label = chosen_x.replace("_", " ").capitalize()
-            y_label = chosen_y.replace("_", " ").capitalize()
-            plot_title = f"{x_label} vs. {y_label} / K={K}"
-            figname = f"poly_{K}_{chosen_x}_vs_{chosen_y}"
-            df = {"xlabel": x_label, "ylabel": y_label, "theta": theta_star, "mse": mse_loss, "K": K}
-            rawdata.append(df)
-            plot_scatterplot_and_polynomial(
-                x=data,
-                y=y,
-                theta=theta_star,
-                xlabel=x_label,
-                ylabel=y_label,
-                title=plot_title,
-                figname=figname
-            )
-            print(f"MSE: {mse_loss}; Theta: {theta_star}")
-    df = pd.DataFrame(rawdata)
-    df.to_excel("polynomial_regression.xlsx")
+
+    chosen_x = 'duration'
+    chosen_y = 'calories'
+    col_id_x = column_to_id[chosen_x]
+    col_id_y = column_to_id[chosen_y]
+    data = smartwatch_data[:, col_id_x]
+    y = smartwatch_data[:, col_id_y]
+    K = 3
+    design_matrix_x = compute_polynomial_design_matrix(x=data, K=K)
+    
+    theta_star = fit_multiple_lin_model(X=design_matrix_x, y=y)
+    mse_loss = multiple_loss(X=design_matrix_x, y=y, theta=theta_star)
+    x_label = chosen_x.replace("_", " ").capitalize()
+    y_label = chosen_y.replace("_", " ").capitalize()
+    plot_title = f"{x_label} vs. {y_label} / K={K}"
+    figname = f"poly_{K}_{chosen_x}_vs_{chosen_y}"
+    
+    plot_scatterplot_and_polynomial(
+        x=data,
+        y=y,
+        theta=theta_star,
+        xlabel=x_label,
+        ylabel=y_label,
+        title=plot_title,
+        figname=figname
+    )
+    print(f"MSE: {mse_loss}; Theta: {theta_star}")
+        
+
 
 
 def task_2():
     print('\n---- Task 2 ----')
 
-    for task in [1, 2, 3]:
+    for task in [1,2,3]:
         print(f'---- Logistic regression task {task} ----')
         if task == 1:
             # Load the data set 1 (X-1-data.npy and targets-dataset-1.npy)
@@ -178,16 +167,15 @@ def task_2():
         X = create_design_matrix(X_data)
 
         # Plot the datapoints (just for visual inspection)
-        #plot_datapoints(X, y, f'Targets - Task {task}')
+        plot_datapoints(X, y, f'Targets - Task {task}')
 
         # TODO: Split the dataset using the `train_test_split` function.
         # The parameter `random_state` should be set to 0.
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-        print(f'Shapes of: X_train {X_train.shape}, X_test {X_test.shape}, y_train {y_train.shape}, y_test {y_test.shape}')
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.2)
 
         # Train the classifier
         custom_params = logistic_regression_params_sklearn()
-        
+
         clf = LogisticRegression(**custom_params)
         # TODO: Fit the model to the data using the `fit` method of the classifier `clf`
         clf.fit(X_train, y_train)
