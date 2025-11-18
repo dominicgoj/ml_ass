@@ -234,7 +234,7 @@ def task_3(initial_plot=True):
     #  i.e., learning_rate, lr_decay, and num_iters. Try out lr_decay=1 as well as values for lr_decay that are < 1.
 
     learning_rate = 0.01
-    learning_rate_decay = 1
+    learning_rate_decay = 0.9
     number_of_iterations = 20
     x_list, y_list, f_list = gradient_descent(f=rastrigin,
                                             df=gradient_rastrigin,
@@ -259,10 +259,10 @@ def task_3(initial_plot=True):
 def main():
     np.random.seed(46)
 
-    #task_1(use_linalg_formulation=False)
-    #task_1(use_linalg_formulation=True)
+    task_1(use_linalg_formulation=False)
+    task_1(use_linalg_formulation=True)
     task_2()
-    #task_3(initial_plot=True)
+    task_3(initial_plot=True)
 
 
 if __name__ == '__main__':
